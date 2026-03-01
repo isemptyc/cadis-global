@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
+import importlib.resources
 from pathlib import Path
 from typing import Any, Optional
 
-from .cgd_bootstrap import CGDBootstrapManager
 from .cgd_world_resolver import CGDWorldResolver
 from .router import RuntimeRouter
 from .version import __version__
-from .world_resolver import WorldCountryResolver
 
 
 class GlobalLookup:
@@ -36,62 +35,46 @@ class GlobalLookup:
     def from_defaults(
         cls,
         *,
-        world_dataset_format: str = "cgd",
         cgd_path: Optional[Path] = None,
-        cgd_cache_dir: Path = Path("/tmp/cadis-global-cache"),
         cgd_dataset_id: str = "ne.global",
-        cgd_dataset_version: Optional[str] = None,
-        cgd_update_to_latest: bool = False,
-        cgd_manifest_url: Optional[str] = None,
-        cgd_artifact_url: Optional[str] = None,
-        cgd_sha256: Optional[str] = None,
-        country_dbf_path: Optional[Path] = None,
-        land_mask_path: Optional[Path] = None,
-        ocean_mask_path: Optional[Path] = None,
-        marine_names_path: Optional[Path] = None,
+        cgd_dataset_version: Optional[str] = "v0.1.0",
         cache_dir: Path = Path("/tmp/cadis-cache"),
         update_to_latest: bool = False,
         supported_iso2: Optional[set[str]] = None,
     ) -> "GlobalLookup":
-        """Build GlobalLookup with default resolver/router implementations.
-
-        Default world resolver is CGD (`world_dataset_format="cgd"`).
-        Use `world_dataset_format="ne"` only for legacy shapefile fallback mode.
-        """
-        normalized_format = (world_dataset_format or "ne").strip().lower()
-        if normalized_format == "cgd":
-            if cgd_path is None:
-                bootstrap = CGDBootstrapManager(
-                    cache_dir=Path(cgd_cache_dir),
-                    dataset_id=cgd_dataset_id,
-                    dataset_version=cgd_dataset_version,
-                    update_to_latest=cgd_update_to_latest,
-                    manifest_url=cgd_manifest_url,
-                    artifact_url=cgd_artifact_url,
-                    expected_cgd_sha256=cgd_sha256,
+        """Build GlobalLookup with bundled-CGD resolver and runtime router."""
+        if cgd_path is None:
+            bundled = cls._resolve_bundled_cgd_path(
+                dataset_id=cgd_dataset_id,
+                dataset_version=cgd_dataset_version,
+            )
+            if bundled is None:
+                raise FileNotFoundError(
+                    "Bundled CGD dataset not found. "
+                    "Provide cgd_path explicitly or install a wheel that includes "
+                    f"'{cgd_dataset_id}.{cgd_dataset_version}.cgd'."
                 )
-                cgd_path = bootstrap.ensure_dataset()
-            world_resolver = CGDWorldResolver(cgd_path=Path(cgd_path))
-        elif normalized_format == "ne":
-            if country_dbf_path is None:
-                raise ValueError("country_dbf_path is required when world_dataset_format='ne'")
-            world_resolver = WorldCountryResolver(
-                country_dbf_path=Path(country_dbf_path),
-                land_mask_path=Path(land_mask_path) if land_mask_path is not None else None,
-                ocean_mask_path=Path(ocean_mask_path) if ocean_mask_path is not None else None,
-                marine_names_path=Path(marine_names_path) if marine_names_path is not None else None,
-            )
-        else:
-            raise ValueError(
-                "world_dataset_format must be one of: 'cgd', 'ne' "
-                f"(got: {world_dataset_format!r})"
-            )
+            cgd_path = bundled
+        world_resolver = CGDWorldResolver(cgd_path=Path(cgd_path))
         router = RuntimeRouter(
             cache_dir=Path(cache_dir),
             update_to_latest=update_to_latest,
             supported_iso2=supported_iso2,
         )
         return cls(world_resolver=world_resolver, router=router)
+
+    @staticmethod
+    def _resolve_bundled_cgd_path(*, dataset_id: str, dataset_version: Optional[str]) -> Optional[Path]:
+        if dataset_id != "ne.global" or not dataset_version:
+            return None
+        filename = f"{dataset_id}.{dataset_version}.cgd"
+        try:
+            candidate = importlib.resources.files("cadis_global").joinpath("data").joinpath(filename)
+            if candidate.is_file():
+                return Path(candidate)
+        except Exception:
+            return None
+        return None
 
     def lookup(self, lat: float, lon: float) -> dict[str, Any]:
         """Execute world resolution + runtime dispatch and return unified envelope."""

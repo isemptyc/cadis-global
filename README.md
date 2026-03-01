@@ -3,13 +3,13 @@
 `cadis-global` is the public orchestration layer for:
 
 1. world-level resolution (`country` or terminal world state)
-2. dataset bootstrap/cache policy
+2. bundled CGD dataset loading
 3. runtime dispatch via `cadis-runtime`
 
 ## Scope (v0.1.0)
 
 - Uses `cadis-runtime` as admin execution engine.
-- Uses `cadis-cdn` indirectly via runtime bootstrap helpers.
+- Ships with bundled `ne.global.v0.1.0.cgd`.
 - Supports only explicitly configured/known ISO2 datasets (`TW`, `JP` by default).
 - Returns deterministic `partial` or `failed` envelopes for unsupported/missing/error paths.
 
@@ -19,60 +19,29 @@
 pip install cadis-global
 ```
 
-Legacy NE shapefile mode extras:
-
-```bash
-pip install "cadis-global[ne]"
-```
-
 ## Public API
 
-CGD world dataset mode (recommended):
+Bundled CGD world dataset mode (default):
 
 ```python
-from pathlib import Path
 from cadis_global import GlobalLookup
 
 lookup = GlobalLookup.from_defaults(
-    world_dataset_format="cgd",
-    cgd_path=Path("/tmp/ne.global.v0.1.0.cgd"),
-    cache_dir=Path("/tmp/cadis-cache"),
+    cache_dir="/tmp/cadis-cache",
     update_to_latest=False,
 )
 
 result = lookup.lookup(25.0330, 121.5654)
 ```
 
-CGD bootstrap mode from CDN tar.gz artifact:
-
-```python
-from cadis_global import GlobalLookup
-
-lookup = GlobalLookup.from_defaults(
-    world_dataset_format="cgd",
-    cgd_cache_dir="/tmp/cadis-global-cache",
-    cgd_dataset_id="ne.global",
-    cgd_dataset_version="v0.1.0",
-    cgd_update_to_latest=False,
-    cgd_manifest_url="https://raw.githubusercontent.com/isemptyc/cadis-global/main/release/cadis-global-dataset/v0.1.0/ne.global/v0.1.0/manifest.cdn-example.json",
-    # or use cgd_artifact_url directly when no remote manifest is available
-    # cgd_artifact_url="https://github.com/isemptyc/cadis-global/releases/download/v0.1.0/ne.global.v0.1.0.tar.gz",
-    # cgd_sha256="<sha256-of-cgd-payload>",
-)
-```
-
-Natural Earth shapefile mode (legacy compatibility):
+Custom local CGD override:
 
 ```python
 from pathlib import Path
 from cadis_global import GlobalLookup
 
 lookup = GlobalLookup.from_defaults(
-    world_dataset_format="ne",
-    country_dbf_path=Path("/path/to/world/ne_10m_admin_0_countries.dbf"),
-    land_mask_path=Path("/path/to/world/ne_10m_land.shp"),
-    ocean_mask_path=Path("/path/to/world/ne_10m_ocean.shp"),
-    marine_names_path=Path("/path/to/world/ne_10m_geography_marine_polys.shp"),
+    cgd_path=Path("/path/to/custom/ne.global.v0.1.0.cgd"),
     cache_dir=Path("/tmp/cadis-cache"),
     update_to_latest=False,
 )
@@ -82,12 +51,8 @@ result = lookup.lookup(25.0330, 121.5654)
 
 Notes:
 
-- `world_dataset_format` supports `"cgd"` and `"ne"`.
-- `"cgd"` mode requires `cadis-global-dataset` to be installed/importable.
-- `"ne"` mode additionally requires `cadis-global[ne]` (shapely + fiona).
-- CGD bootstrap uses direct manifest/tar.gz download; it does not use `cadis-cdn`.
-- Default `world_dataset_format` is `"cgd"` in `GlobalLookup.from_defaults(...)`.
-- `"ne"` mode is legacy compatibility fallback and should be selected explicitly.
+- `"cgd"` mode uses bundled `ne.global.v0.1.0.cgd` by default.
+- Set `cgd_path` to override the bundled dataset with a custom local CGD file.
 
 Envelope contract:
 

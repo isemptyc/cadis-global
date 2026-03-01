@@ -21,11 +21,9 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 
-[project.optional-dependencies]
-ne = [
-  "shapely>=2.0.0",
-  "fiona>=1.9.0",
-]
-
 [tool.setuptools]
 packages = ["cadis_global"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+cadis_global = ["data/*.cgd"]

@@ -6,6 +6,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .cgd_binary import (
+    FLAG_COUNTRY,
+    FLAG_LANDMASS,
+    FLAG_OCEAN,
+    TERMINAL_ANTARCTICA,
+    TERMINAL_NO_SOVEREIGN_LAND,
+    TERMINAL_OPEN_SEA,
+    CGDReader,
+)
+
 
 class CGDWorldResolver:
     """Resolve world context using a CGD binary dataset."""
@@ -16,22 +26,7 @@ class CGDWorldResolver:
     NO_SOVEREIGN_LAND_LABEL = "No Sovereign Land"
 
     def __init__(self, *, cgd_path: Path):
-        try:
-            from cadis_global_dataset.constants import (
-                FLAG_COUNTRY,
-                FLAG_LANDMASS,
-                FLAG_OCEAN,
-                TERMINAL_ANTARCTICA,
-                TERMINAL_NO_SOVEREIGN_LAND,
-                TERMINAL_OPEN_SEA,
-            )
-            from cadis_global_dataset.reader import CGDReader
-        except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency guard
-            raise ModuleNotFoundError(
-                "CGDWorldResolver requires 'cadis-global-dataset' package."
-            ) from exc
-
-        self._reader = CGDReader.from_file(Path(cgd_path))
+        self._reader = CGDReader(Path(cgd_path))
         self._FLAG_COUNTRY = FLAG_COUNTRY
         self._FLAG_OCEAN = FLAG_OCEAN
         self._FLAG_LANDMASS = FLAG_LANDMASS
