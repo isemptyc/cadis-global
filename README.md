@@ -54,9 +54,9 @@ lookup = GlobalLookup.from_defaults(
     cgd_dataset_id="ne.global",
     cgd_dataset_version="v0.1.0",
     cgd_update_to_latest=False,
-    cgd_manifest_url="https://cdn.example.com/ne.global/manifest.json",
+    cgd_manifest_url="https://raw.githubusercontent.com/isemptyc/cadis-global/main/release/cadis-global-dataset/v0.1.0/ne.global/v0.1.0/manifest.cdn-example.json",
     # or use cgd_artifact_url directly when no remote manifest is available
-    # cgd_artifact_url="https://cdn.example.com/ne.global/ne.global.v0.1.0.tar.gz",
+    # cgd_artifact_url="https://github.com/isemptyc/cadis-global/releases/download/v0.1.0/ne.global.v0.1.0.tar.gz",
     # cgd_sha256="<sha256-of-cgd-payload>",
 )
 ```
