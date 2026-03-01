@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cadis-global"
+version = "0.1.0"
+description = "Public world-orchestration layer for Cadis runtime dispatch"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Cadis" }]
+license = { text = "Proprietary" }
+dependencies = [
+  "cadis-runtime>=0.1.2",
+  "cadis-cdn>=0.1.0",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: Other/Proprietary License",
+  "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+ne = [
+  "shapely>=2.0.0",
+  "fiona>=1.9.0",
+]
+
+[tool.setuptools]
+packages = ["cadis_global"]
