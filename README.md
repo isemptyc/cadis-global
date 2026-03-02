@@ -78,6 +78,12 @@ Envelope contract:
 4. Execute `runtime.lookup(lat, lon)`.
 5. Return unified envelope with `world_context` + untouched `admin_result`.
 
+Runtime bootstrap note:
+
+- Country runtime bootstrap is lazy per ISO2 and may trigger on-demand CDN download on first country hit.
+- First lookup latency for an ISO2 can increase while bootstrap/download is in progress.
+- If bootstrap/download cannot complete, result is deterministic `partial` with reason such as `missing_dataset` or `runtime_bootstrap_error`.
+
 ## Status semantics
 
 - `ok`: world resolution succeeded; runtime either not needed (terminal) or returned a valid payload.
