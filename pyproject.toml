@@ -22,8 +22,11 @@ classifiers = [
 ]
 
 [tool.setuptools]
-packages = ["cadis_global"]
-include-package-data = true
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["cadis_global"]
+namespaces = false
 
 [tool.setuptools.package-data]
 cadis_global = ["data/*.cgd"]
