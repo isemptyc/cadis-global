@@ -12,7 +12,7 @@ SPEC_MAJOR = 1
 
 HEADER_STRUCT = struct.Struct("<8sHHIIIQQQQQ")
 POLYGON_INDEX_STRUCT = struct.Struct("<IQII2sBHB")
-BBOX_STRUCT = struct.Struct("<dddd")
+BBOX_STRUCT = struct.Struct("<ffff")
 STRING_OFFSET_STRUCT = struct.Struct("<QII")
 
 FLAG_COUNTRY = 1 << 0
@@ -192,8 +192,8 @@ class CGDReader:
             cursor += 4
             ring: list[tuple[float, float]] = []
             for _ in range(point_count):
-                lon, lat = struct.unpack_from("<dd", data, cursor)
-                cursor += 16
+                lon, lat = struct.unpack_from("<ff", data, cursor)
+                cursor += 8
                 ring.append((lon, lat))
             rings.append(ring)
         return rings

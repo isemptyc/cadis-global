@@ -53,6 +53,9 @@ Notes:
 
 - `"cgd"` mode uses bundled `ne.global.v0.1.0.cgd` by default.
 - Set `cgd_path` to override the bundled dataset with a custom local CGD file.
+- CGD binary spec lives at `cadis_global/data/CGD_SPEC.md`.
+- Current bundled dataset/spec uses `float32` coordinates (bbox + geometry points).
+- Custom CGD files must follow the same float32 layout expected by this runtime.
 
 Envelope contract:
 
@@ -100,3 +103,4 @@ Common `reason` values for `partial`:
 
 - `cadis-global-dataset` tooling is internal and not published to GitHub.
 - The built global dataset artifact (for example `ne.global.v0.1.0.cgd`) is distributed alongside `cadis-global`.
+- Bundled dataset `ne.global.v0.1.0.cgd` is approximately 12 MB (uncompressed package content).
