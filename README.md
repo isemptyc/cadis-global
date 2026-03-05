@@ -1,5 +1,11 @@
 # cadis-global
 
+⚠️ This repository is deprecated.
+
+The functionality previously provided by `cadis-global`
+has been integrated into the unified `cadis` package
+since Cadis v0.2.0.
+
 `cadis-global` is the public orchestration layer for:
 
 1. world-level resolution (`country` or terminal world state)
